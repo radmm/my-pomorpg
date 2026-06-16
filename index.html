@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Pomodoro RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap');
+
+        * {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background: linear-gradient(135deg, #FFFF00 0%, #00D9FF 100%);
+            min-height: 100vh;
+        }
+
+        .neo-card {
+            border: 6px solid #000;
+            box-shadow: 12px 12px 0px #000, 24px 24px 0px rgba(0, 0, 0, 0.3);
+            background: #FFFF00;
+            position: relative;
+        }
+
+        .neo-card-blue {
+            background: #00D9FF;
+        }
+
+        .neo-btn {
+            border: 5px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            background: #FFFF00;
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.05s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .neo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 10px 10px 0px #000;
+        }
+
+        .neo-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .neo-btn-blue {
+            background: #00D9FF;
+            color: #000;
+        }
+
+        .neo-btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .neo-btn-disabled:hover,
+        .neo-btn-disabled:active {
+            transform: none;
+            box-shadow: 8px 8px 0px #000;
+        }
+
+        .timer-display {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 1;
+            color: #000;
+            text-shadow: 6px 6px 0px #00D9FF;
+            letter-spacing: -4px;
+        }
+
+        .xp-bar {
+            background: #000;
+            border: 4px solid #000;
+            height: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .xp-fill {
+            background: linear-gradient(90deg, #00D9FF, #FFFF00);
+            height: 100%;
+            transition: width 0.3s;
+            border-right: 3px solid #000;
+        }
+
+        .xp-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFFF00;
+            font-weight: 800;
+            font-size: 0.9rem;
+            z-index: 10;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .stat-badge {
+            border: 4px solid #000;
+            background: #00D9FF;
+            padding: 8px 16px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            display: inline-block;
+        }
+
+        .inventory-item {
+            border: 4px solid #000;
+            background: #FFFF00;
+            padding: 12px;
+            margin: 8px;
+            box-shadow: 6px 6px 0px #000;
+        }
+
+        .inventory-item-blue {
+            background: #00D9FF;
+        }
+
+        .mode-toggle {
+            border: 4px solid #000;
+            background: #00D9FF;
+            padding: 8px 16px;
+            font-weight: 800;
+            display: inline-block;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .asymmetric-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            grid-template-areas:
+                "timer shop"
+                "character shop"
+                "inventory inventory";
+        }
+
+        @media (max-width: 768px) {
+            .asymmetric-grid {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "timer"
+                    "character"
+                    "shop"
+                    "inventory";
+            }
+        }
+
+        .area-timer {
+            grid-area: timer;
+        }
+
+        .area-character {
+            grid-area: character;
+        }
+
+        .area-shop {
+            grid-area: shop;
+        }
+
+        .area-inventory {
+            grid-area: inventory;
+        }
+
+        .floating-icon {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <div class="mb-12">
+            <h1 style="font-size: 4rem; font-weight: 800; letter-spacing: 3px; text-shadow: 8px 8px 0px rgba(0,0,0,0.5);">
+                ⚔️ POMODORO RPG ⚔️
+            </h1>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="asymmetric-grid">
+            <!-- TIMER SECTION -->
+            <div class="area-timer neo-card p-8">
+                <div class="mb-6">
+                    <div class="mode-toggle mb-4">
+                        <span id="modeDisplay">🔴 WORK MODE</span>
+                    </div>
+                </div>
+                <div class="timer-display mb-8" id="timerDisplay">25:00</div>
+                <div class="flex gap-4">
+                    <button class="neo-btn flex-1" id="startBtn">START</button>
+                    <button class="neo-btn flex-1" id="pauseBtn">PAUSE</button>
+                    <button class="neo-btn flex-1" id="resetBtn">RESET</button>
+                </div>
+            </div>
+
+            <!-- CHARACTER STATS SECTION -->
+            <div class="area-character neo-card neo-card-blue p-8">
+                <h2 style="font-size: 1.5rem; margin-bottom: 16px; text-transform: uppercase;">Character</h2>
+                
+                <div class="mb-6">
+                    <div class="stat-badge" style="background: #FFFF00;">
+                        LVL <span id="levelDisplay">1</span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div style="font-weight: 800; margin-bottom: 8px; font-size: 0.9rem;">XP PROGRESS</div>
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+                        <div class="xp-text" id="xpText">0/100</div>
+                    </div>
+                </div>
+
+                <div class="stat-badge" style="background: #FFFF00;">
+                    💰 <span id="goldDisplay">0</span> GOLD
+                </div>
+            </div>
+
+            <!-- SHOP SECTION -->
+            <div class="area-shop neo-card p-8">
+                <h2 style="font-size: 1.5rem; margin-bottom: 16px; text-transform: uppercase;">Shop</h2>
+                <div id="shopContainer" class="space-y-4"></div>
+            </div>
+
+            <!-- INVENTORY SECTION -->
+            <div class="area-inventory neo-card neo-card-blue p-8">
+                <h2 style="font-size: 1.5rem; margin-bottom: 16px; text-transform: uppercase;">Inventory</h2>
+                <div id="inventoryContainer" class="flex flex-wrap">
+                    <div style="color: #666; font-size: 0.9rem;">EMPTY</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
