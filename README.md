@@ -2,7 +2,7 @@
 
 A Neo-Brutalism inspired web application that gamifies the Pomodoro productivity technique. Track your focus sessions, earn XP and gold, and build your inventory with retro pixel items.
 
-## 🎮 Features
+## Features:
 
 ### State Management
 - **GameState Object** - Centralized state tracking for:
